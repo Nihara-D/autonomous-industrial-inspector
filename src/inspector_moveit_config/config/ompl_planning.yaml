@@ -1,7 +1,17 @@
-planner_configs:
-  RRTConnectkConfigDefault:
-    type: geometric::RRTConnect
-arm:
-  default_planner_config: RRTConnectkConfigDefault
-  planner_configs:
-    - RRTConnectkConfigDefault
+ompl:
+  planning_plugin: ompl_interface/OMPLPlanner
+  request_adapters: >-
+    default_planner_request_adapters/AddTimeParameterization
+    default_planner_request_adapters/FixWorkspaceBounds
+    default_planner_request_adapters/FixStartStateBounds
+    default_planner_request_adapters/FixInvalidJointStates
+    default_planner_request_adapters/FixSeekingStart
+  start_state_max_bounds_error: 0.1
+  arm:
+    default_planner_config: RRTConnectkConfigDefault
+    planner_configs:
+      - RRTConnectkConfigDefault
+
+RRTConnectkConfigDefault:
+  type: geometric::RRTConnect
+  range: 0.0
