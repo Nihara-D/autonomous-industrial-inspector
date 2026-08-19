@@ -5,16 +5,15 @@ from launch_ros.actions import Node
 from moveit_configs_utils import MoveItConfigsBuilder
 
 def generate_launch_description():
-    # inspector_description package එකේ urdf xacro path එක ලබා ගැනීම
     pkg_description = get_package_share_directory('inspector_description')
     urdf_path = os.path.join(pkg_description, 'urdf', 'inspector_arm.urdf.xacro')
 
-    # MoveItConfigsBuilder මගින් Absolute Path භාවිතයෙන් Configurations Auto-load කිරීම
+    # MoveItConfigsBuilder නිවැරදි Method Names භාවිතයෙන්
     moveit_config = (
         MoveItConfigsBuilder("inspector_arm", package_name="inspector_moveit_config")
         .robot_description(file_path=urdf_path)
         .robot_description_semantic(file_path="config/inspector_arm.srdf")
-        .kinematics(file_path="config/kinematics.yaml")
+        .robot_description_kinematics(file_path="config/kinematics.yaml")
         .planning_pipelines(pipelines=["ompl"])
         .to_moveit_configs()
     )
