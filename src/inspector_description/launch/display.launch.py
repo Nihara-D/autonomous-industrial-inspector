@@ -7,6 +7,8 @@ import xacro
 def generate_launch_description():
     pkg_path = get_package_share_directory('inspector_description')
     xacro_file = os.path.join(pkg_path, 'urdf', 'inspector_arm.urdf.xacro')
+    rviz_config_file = os.path.join(pkg_path, 'config', 'view_robot.rviz')
+    
     robot_description_config = xacro.process_file(xacro_file)
 
     params = {'robot_description': robot_description_config.toxml()}
@@ -28,7 +30,8 @@ def generate_launch_description():
         package='rviz2',
         executable='rviz2',
         name='rviz2',
-        output='screen'
+        output='screen',
+        arguments=['-d', rviz_config_file]
     )
 
     return LaunchDescription([
