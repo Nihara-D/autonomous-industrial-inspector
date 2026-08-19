@@ -9,22 +9,33 @@ def generate_launch_description():
     pkg_description = get_package_share_directory('inspector_description')
     pkg_moveit_config = get_package_share_directory('inspector_moveit_config')
 
-    # Robot Description (URDF)
+    # 1. Robot Description (URDF)
     xacro_file = os.path.join(pkg_description, 'urdf', 'inspector_arm.urdf.xacro')
     robot_description_config = xacro.process_file(xacro_file)
     robot_description = {'robot_description': robot_description_config.toxml()}
 
-    # Robot Description Semantic (SRDF)
+    # 2. Robot Description Semantic (SRDF)
     srdf_file = os.path.join(pkg_moveit_config, 'config', 'inspector_arm.srdf')
     with open(srdf_file, 'r') as f:
         semantic_config = f.read()
     robot_description_semantic = {'robot_description_semantic': semantic_config}
 
-    # Kinematics config dict load කිරීම
+    # 3. Kinematics Config
     kinematics_yaml_path = os.path.join(pkg_moveit_config, 'config', 'kinematics.yaml')
     with open(kinematics_yaml_path, 'r') as f:
         kinematics_config = yaml.safe_load(f)
     robot_description_kinematics = {'robot_description_kinematics': kinematics_config}
+
+    # 4. OMPL Planning Pipeline Configuration
+    ompl_yaml_path = os.path.join(pkg_moveit_config, 'config', 'ompl_planning.yaml')
+    with open(ompl_yaml_path, 'r') as f:
+        ompl_config = yaml.safe_load(f)
+
+    ompl_pipeline_config = {
+        'planning_pipelines': ['ompl'],
+        'default_planning_pipeline': 'ompl',
+        'ompl': ompl_config
+    }
 
     # MoveGroup Node setup
     move_group_node = Node(
@@ -35,11 +46,12 @@ def generate_launch_description():
             robot_description,
             robot_description_semantic,
             robot_description_kinematics,
+            ompl_pipeline_config,
             {'publish_robot_description_semantic': True}
         ]
     )
 
-    # Static TF Publisher (New Arguments format for Jazzy)
+    # Static TF Publisher
     static_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
