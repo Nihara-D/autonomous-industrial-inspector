@@ -16,22 +16,25 @@ def generate_launch_description():
         .joint_limits(file_path="config/joint_limits.yaml")
         .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
+        .planning_pipelines(pipelines=["ompl"])
         .to_moveit_configs()
     )
 
-    # OMPL Explicit Parameter Injection
+    # ROS 2 Parameter Server එකට Nested Dictionary එකක් ලෙස Injection එක
     ompl_override_params = {
         'planning_pipelines': ['ompl'],
         'default_planning_pipeline': 'ompl',
-        'ompl.planning_plugin': 'ompl_interface/OMPLPlanner',
-        'ompl.request_adapters': [
-            'default_planner_request_adapters/AddTimeOptimalParameterization',
-            'default_planner_request_adapters/FixWorkspaceBounds',
-            'default_planner_request_adapters/FixStartStateBounds',
-            'default_planner_request_adapters/FixInvalidJointStates',
-            'default_planner_request_adapters/FixSeekingStart',
-        ],
-        'ompl.start_state_max_bounds_error': 0.1,
+        'ompl': {
+            'planning_plugin': 'ompl_interface/OMPLPlanner',
+            'request_adapters': (
+                'default_planner_request_adapters/AddTimeOptimalParameterization '
+                'default_planner_request_adapters/FixWorkspaceBounds '
+                'default_planner_request_adapters/FixStartStateBounds '
+                'default_planner_request_adapters/FixInvalidJointStates '
+                'default_planner_request_adapters/FixSeekingStart'
+            ),
+            'start_state_max_bounds_error': 0.1,
+        }
     }
 
     # MoveGroup Node
