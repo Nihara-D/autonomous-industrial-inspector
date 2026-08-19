@@ -15,26 +15,33 @@ def generate_launch_description():
         .robot_description_kinematics(file_path="config/kinematics.yaml")
         .joint_limits(file_path="config/joint_limits.yaml")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
-        .planning_pipelines(default_planning_pipeline="ompl", pipelines=["ompl"])
         .to_moveit_configs()
     )
 
-    # MoveGroup Parameters Definition
-    move_group_params = [
-        moveit_config.to_dict(),
-        {
-            'planning_pipelines': ['ompl'],
-            'default_planning_pipeline': 'ompl',
-            'ompl.planning_plugin': 'ompl_interface/OMPLPlanner',
-        }
-    ]
+    # ROS 2 Jazzy සඳහා Explicit Parameter Injection (Dot Notation)
+    ompl_override_params = {
+        'planning_pipelines': ['ompl'],
+        'default_planning_pipeline': 'ompl',
+        'ompl.planning_plugin': 'ompl_interface/OMPLPlanner',
+        'ompl.request_adapters': [
+            'default_planner_request_adapters/AddTimeOptimalParameterization',
+            'default_planner_request_adapters/FixWorkspaceBounds',
+            'default_planner_request_adapters/FixStartStateBounds',
+            'default_planner_request_adapters/FixInvalidJointStates',
+            'default_planner_request_adapters/FixSeekingStart',
+        ],
+        'ompl.start_state_max_bounds_error': 0.1,
+    }
 
     # MoveGroup Node
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
         output="screen",
-        parameters=move_group_params
+        parameters=[
+            moveit_config.to_dict(),
+            ompl_override_params
+        ]
     )
 
     # Static TF Publisher
