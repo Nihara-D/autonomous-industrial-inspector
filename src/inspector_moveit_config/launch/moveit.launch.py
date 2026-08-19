@@ -14,11 +14,12 @@ def generate_launch_description():
         .robot_description_semantic(file_path="config/inspector_arm.srdf")
         .robot_description_kinematics(file_path="config/kinematics.yaml")
         .joint_limits(file_path="config/joint_limits.yaml")
+        .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml")
         .trajectory_execution(file_path="config/moveit_controllers.yaml")
         .to_moveit_configs()
     )
 
-    # ROS 2 Jazzy සඳහා Explicit Parameter Injection (Dot Notation)
+    # OMPL Explicit Parameter Injection
     ompl_override_params = {
         'planning_pipelines': ['ompl'],
         'default_planning_pipeline': 'ompl',
