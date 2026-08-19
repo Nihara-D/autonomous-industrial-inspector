@@ -8,12 +8,13 @@ def generate_launch_description():
     pkg_description = get_package_share_directory('inspector_description')
     urdf_path = os.path.join(pkg_description, 'urdf', 'inspector_arm.urdf.xacro')
 
-    # MoveItConfigsBuilder නිවැරදි Method Names භාවිතයෙන්
     moveit_config = (
         MoveItConfigsBuilder("inspector_arm", package_name="inspector_moveit_config")
         .robot_description(file_path=urdf_path)
         .robot_description_semantic(file_path="config/inspector_arm.srdf")
         .robot_description_kinematics(file_path="config/kinematics.yaml")
+        .joint_limits(file_path="config/joint_limits.yaml")
+        .trajectory_execution(file_path="config/moveit_controllers.yaml")
         .planning_pipelines(pipelines=["ompl"])
         .to_moveit_configs()
     )
