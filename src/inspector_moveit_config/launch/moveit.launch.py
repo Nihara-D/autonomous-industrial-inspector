@@ -1,4 +1,5 @@
 import os
+import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
@@ -19,8 +20,11 @@ def generate_launch_description():
         semantic_config = f.read()
     robot_description_semantic = {'robot_description_semantic': semantic_config}
 
-    # Kinematics config
-    kinematics_yaml = os.path.join(pkg_moveit_config, 'config', 'kinematics.yaml')
+    # Kinematics config dict load කිරීම
+    kinematics_yaml_path = os.path.join(pkg_moveit_config, 'config', 'kinematics.yaml')
+    with open(kinematics_yaml_path, 'r') as f:
+        kinematics_config = yaml.safe_load(f)
+    robot_description_kinematics = {'robot_description_kinematics': kinematics_config}
 
     # MoveGroup Node setup
     move_group_node = Node(
@@ -30,18 +34,18 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_description_semantic,
-            kinematics_yaml,
+            robot_description_kinematics,
             {'publish_robot_description_semantic': True}
         ]
     )
 
-    # Static TF Publisher
+    # Static TF Publisher (New Arguments format for Jazzy)
     static_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
         name='static_transform_publisher',
         output='log',
-        arguments=['0', '0', '0', '0', '0', '0', 'world', 'base_link']
+        arguments=['--x', '0', '--y', '0', '--z', '0', '--roll', '0', '--pitch', '0', '--yaw', '0', '--frame-id', 'world', '--child-frame-id', 'base_link']
     )
 
     # Robot State Publisher
