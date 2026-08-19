@@ -20,19 +20,19 @@ def generate_launch_description():
         .to_moveit_configs()
     )
 
-    # ROS 2 Parameter Server එකට Nested Dictionary එකක් ලෙස Injection එක
+    # request_adapters ටික String Array (Python List) එකක් විදිහට pass කිරීම
     ompl_override_params = {
         'planning_pipelines': ['ompl'],
         'default_planning_pipeline': 'ompl',
         'ompl': {
             'planning_plugin': 'ompl_interface/OMPLPlanner',
-            'request_adapters': (
-                'default_planner_request_adapters/AddTimeOptimalParameterization '
-                'default_planner_request_adapters/FixWorkspaceBounds '
-                'default_planner_request_adapters/FixStartStateBounds '
-                'default_planner_request_adapters/FixInvalidJointStates '
-                'default_planner_request_adapters/FixSeekingStart'
-            ),
+            'request_adapters': [
+                'default_planner_request_adapters/AddTimeOptimalParameterization',
+                'default_planner_request_adapters/FixWorkspaceBounds',
+                'default_planner_request_adapters/FixStartStateBounds',
+                'default_planner_request_adapters/FixInvalidJointStates',
+                'default_planner_request_adapters/FixSeekingStart',
+            ],
             'start_state_max_bounds_error': 0.1,
         }
     }
@@ -58,8 +58,7 @@ def generate_launch_description():
     # Robot State Publisher
     robot_state_publisher = Node(
         package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="screen",
+        executable="robot_state_publisher", output="screen",
         parameters=[moveit_config.robot_description]
     )
 
