@@ -43,8 +43,34 @@ def generate_launch_description():
         output='screen'
     )
 
+    # 5. Spawn ros2_control controllers (loaded via controller_manager once the
+    #    robot exists in Gazebo and the gz_ros2_control plugin has started).
+    joint_state_broadcaster_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster'],
+        output='screen'
+    )
+
+    arm_controller_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['arm_controller'],
+        output='screen'
+    )
+
+    # Spawn controllers only after spawn_robot has finished, so the
+    # controller_manager (started by the gz_ros2_control plugin) is up first.
+    delayed_controller_spawners = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=spawn_robot,
+            on_exit=[joint_state_broadcaster_spawner, arm_controller_spawner],
+        )
+    )
+
     return LaunchDescription([
         robot_state_publisher,
         gazebo,
-        spawn_robot
+        spawn_robot,
+        delayed_controller_spawners
     ])
