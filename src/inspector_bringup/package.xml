@@ -10,9 +10,12 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>inspector_description</exec_depend>
+  <exec_depend>inspector_moveit_config</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>controller_manager</exec_depend>
+  <exec_depend>moveit_ros_move_group</exec_depend>
+  <exec_depend>rviz2</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
