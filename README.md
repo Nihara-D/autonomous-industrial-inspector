@@ -11,8 +11,8 @@ An industrial inspection and pick-and-place robotic system built using **ROS 2 J
 
 ## Screenshots
 
-![Gazebo simulation](docs/screenshots/gazebo.png)
-![RViz motion planning](docs/screenshots/rviz_planning.png)
+![Gazebo simulation](gazebo.png)
+![RViz motion planning](rviz_planning.png)
 
 ## System Requirements
 
