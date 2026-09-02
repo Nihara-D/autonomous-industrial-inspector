@@ -1,0 +1,147 @@
+================================================================================
+                      ROS 2 & MOVEIT 2 TROUBLESHOOTING LOG
+================================================================================
+Project: Autonomous Industrial Inspector (inspector_moveit_config)
+Environment: Ubuntu 24.04 LTS / ROS 2 Jazzy
+Date: August 21, 2026
+
+--------------------------------------------------------------------------------
+1. SUMMARY OF STEPS EXECUTED
+--------------------------------------------------------------------------------
+- Configured MoveIt 2 launch setup using MoveItConfigsBuilder.
+- Consolidated Move Group, Robot State Publisher, Joint State Publisher,
+  Static TF, and RViz2 into a unified launch file.
+- Launched RViz2 with OMPL motion planning pipeline.
+
+Build & Run Commands:
+  cd ~/ros2_projects/autonomous-industrial-inspector
+  colcon build --packages-select inspector_moveit_config --symlink-install
+  source install/setup.bash
+  ros2 launch inspector_moveit_config moveit_rviz.launch.py
+
+--------------------------------------------------------------------------------
+2. BUGS ENCOUNTERED AND SOLUTIONS
+--------------------------------------------------------------------------------
+
+[BUG 01] Robot 3D Mesh / Links Not Rendering in RViz2
+--------------------------------------------------------------------------------
+Issue:
+  Only the Interactive Marker (Gizmo) was visible in the RViz viewport. The 3D
+  robot arm mesh and link structures were completely missing.
+
+Root Cause:
+  1. The RViz configuration tree was missing the 'RobotModel' display plugin.
+  2. Robot State Publisher and Joint State Publisher nodes were not active,
+     preventing TF transforms from publishing to /robot_description.
+
+Solution:
+  1. Added 'robot_state_publisher' and 'joint_state_publisher' nodes directly
+     into the launch file.
+  2. In RViz, clicked 'Add' -> 'RobotModel' and set the 'Description Topic' to
+     '/robot_description'.
+
+
+[BUG 02] Start State and Goal State Overlapping at <current>
+--------------------------------------------------------------------------------
+Issue:
+  The motion planning interactive marker was stuck, and both Start and Goal
+  states remained identical at <current>, failing trajectory planning.
+
+Root Cause:
+  Absence of active joint state publishing made the end-effector pose static in
+  the planning scene.
+
+Solution:
+  1. Added 'joint_state_publisher' node to continuously broadcast joint states.
+  2. In RViz MotionPlanning panel, switched Goal State from <current> to
+     <random> or manually dragged the interactive marker to plan motion.
+
+
+[BUG 03] Launch File Not Found Error ('demo.launch.py' was not found)
+--------------------------------------------------------------------------------
+Issue:
+  Running 'ros2 launch inspector_moveit_config demo.launch.py' failed with:
+  "file 'demo.launch.py' was not found in the share directory of package"
+
+Root Cause:
+  The newly created file was either not saved in the source directory or CMake
+  symlink caching prevented colcon from copying it to the install directory.
+
+Solution:
+  Overwrote the existing, indexed launch file 'moveit_rviz.launch.py' inside
+  src/inspector_moveit_config/launch/ with the complete node configuration
+  and rebuilt the workspace.
+
+================================================================================
+3. FINAL WORKING LAUNCH CODE (moveit_rviz.launch.py)
+================================================================================
+
+import os
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from moveit_configs_utils import MoveItConfigsBuilder
+
+def generate_launch_description():
+    pkg_description = get_package_share_directory('inspector_description')
+    urdf_path = os.path.join(pkg_description, 'urdf', 'inspector_arm.urdf.xacro')
+
+    moveit_config = (
+        MoveItConfigsBuilder("inspector_arm", package_name="inspector_moveit_config")
+        .robot_description(file_path=urdf_path)
+        .robot_description_semantic(file_path="config/inspector_arm.srdf")
+        .robot_description_kinematics(file_path="config/kinematics.yaml")
+        .joint_limits(file_path="config/joint_limits.yaml")
+        .pilz_cartesian_limits(file_path="config/pilz_cartesian_limits.yaml")
+        .to_moveit_configs()
+    )
+
+    move_group_node = Node(
+        package="moveit_ros_move_group",
+        executable="move_group",
+        output="screen",
+        parameters=[
+            moveit_config.to_dict(),
+            {"planning_pipelines": ["ompl"]},
+            {"default_planning_pipeline": "ompl"},
+        ],
+    )
+
+    robot_state_publisher = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="screen",
+        parameters=[moveit_config.robot_description],
+    )
+
+    static_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="static_transform_publisher",
+        output="log",
+        arguments=["--x", "0", "--y", "0", "--z", "0", "--roll", "0", "--pitch", "0", "--yaw", "0", "--frame-id", "world", "--child-frame-id", "base_link"],
+    )
+
+    joint_state_publisher = Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        name="joint_state_publisher",
+        output="screen",
+    )
+
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        parameters=[moveit_config.to_dict()],
+    )
+
+    return LaunchDescription([
+        static_tf,
+        robot_state_publisher,
+        joint_state_publisher,
+        move_group_node,
+        rviz_node,
+    ])
+================================================================================

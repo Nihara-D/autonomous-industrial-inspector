@@ -66,6 +66,8 @@ def generate_launch_description():
         output='screen'
     )
 
+    # Spawn controllers only after spawn_robot has finished, so the
+    # controller_manager (started by the gz_ros2_control plugin) is up first.
     delayed_controller_spawners = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=spawn_robot,
