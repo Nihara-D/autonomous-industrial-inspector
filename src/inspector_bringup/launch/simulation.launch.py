@@ -9,11 +9,18 @@ import xacro
 
 def generate_launch_description():
     pkg_description = get_package_share_directory('inspector_description')
+    pkg_bringup = get_package_share_directory('inspector_bringup')
     pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
 
-    # 1. Process Xacro
+    # 1. Process Xacro, injecting the REAL, resolved path to controllers.yaml
+    #    (xacro has no $(find ...) substitution -- it must be passed in as a
+    #    mapping from Python instead).
     xacro_file = os.path.join(pkg_description, 'urdf', 'inspector_arm.urdf.xacro')
-    robot_desc = xacro.process_file(xacro_file).toxml()
+    controllers_yaml = os.path.join(pkg_bringup, 'config', 'controllers.yaml')
+    robot_desc = xacro.process_file(
+        xacro_file,
+        mappings={'controllers_config': controllers_yaml}
+    ).toxml()
 
     # 2. Start Robot State Publisher
     robot_state_publisher = Node(
@@ -43,8 +50,32 @@ def generate_launch_description():
         output='screen'
     )
 
+    # 5. Spawn ros2_control controllers once the robot exists in Gazebo and
+    #    the gz_ros2_control plugin has started the controller_manager.
+    joint_state_broadcaster_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster'],
+        output='screen'
+    )
+
+    arm_controller_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['arm_controller'],
+        output='screen'
+    )
+
+    delayed_controller_spawners = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=spawn_robot,
+            on_exit=[joint_state_broadcaster_spawner, arm_controller_spawner],
+        )
+    )
+
     return LaunchDescription([
         robot_state_publisher,
         gazebo,
-        spawn_robot
+        spawn_robot,
+        delayed_controller_spawners
     ])
