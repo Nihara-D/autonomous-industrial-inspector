@@ -30,12 +30,14 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_desc}]
     )
 
-    # 3. Launch Gazebo Harmonic (gz_sim) with empty world
+    # 3. Launch Gazebo Harmonic (gz_sim) with the custom inspection world
+    #    (table + 3 colored objects, replacing the old empty.sdf).
+    world_path = os.path.join(pkg_bringup, 'worlds', 'inspection_world.sdf')
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
         ),
-        launch_arguments={'gz_args': '-r empty.sdf'}.items(),
+        launch_arguments={'gz_args': ['-r ', world_path]}.items(),
     )
 
     # 4. Spawn Robot in Gazebo using ros_gz_sim bridge
