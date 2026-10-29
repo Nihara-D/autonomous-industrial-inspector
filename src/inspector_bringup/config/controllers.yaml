@@ -8,6 +8,9 @@ controller_manager:
     arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
+    gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
 arm_controller:
   ros__parameters:
     joints:
@@ -20,3 +23,26 @@ arm_controller:
     state_interfaces:
       - position
       - velocity
+    constraints:
+      goal_time: 2.0
+      stopped_velocity_tolerance: 0.05
+      joint_1: {trajectory: 0.2, goal: 0.05}
+      joint_2: {trajectory: 0.2, goal: 0.05}
+      joint_3: {trajectory: 0.2, goal: 0.05}
+      joint_4: {trajectory: 0.2, goal: 0.05}
+
+gripper_controller:
+  ros__parameters:
+    joints:
+      - finger_left_joint
+      - finger_right_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    constraints:
+      goal_time: 2.0
+      stopped_velocity_tolerance: 0.05
+      finger_left_joint: {trajectory: 0.05, goal: 0.02}
+      finger_right_joint: {trajectory: 0.05, goal: 0.02}
