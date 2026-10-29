@@ -2,7 +2,9 @@ import os
 import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from moveit_configs_utils import MoveItConfigsBuilder
@@ -68,6 +70,7 @@ def generate_launch_description():
         executable="rviz2",
         name="rviz2",
         output="screen",
+        condition=IfCondition(LaunchConfiguration("rviz")),
         parameters=[
             moveit_config.robot_description,
             moveit_config.robot_description_semantic,
@@ -87,6 +90,9 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        DeclareLaunchArgument(
+            "rviz", default_value="true",
+            description="Start RViz with the MotionPlanning panel"),
         simulation,
         delayed_moveit
     ])

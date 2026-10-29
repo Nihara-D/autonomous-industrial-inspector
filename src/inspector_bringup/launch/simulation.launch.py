@@ -68,12 +68,31 @@ def generate_launch_description():
         output='screen'
     )
 
+    gripper_controller_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['gripper_controller'],
+        output='screen'
+    )
+
+    # Bridge the overhead camera (Gazebo transport -> ROS 2)
+    camera_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '/camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+        ],
+        output='screen'
+    )
+
     # Spawn controllers only after spawn_robot has finished, so the
     # controller_manager (started by the gz_ros2_control plugin) is up first.
     delayed_controller_spawners = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=spawn_robot,
-            on_exit=[joint_state_broadcaster_spawner, arm_controller_spawner],
+            on_exit=[joint_state_broadcaster_spawner, arm_controller_spawner,
+                     gripper_controller_spawner],
         )
     )
 
@@ -81,5 +100,6 @@ def generate_launch_description():
         robot_state_publisher,
         gazebo,
         spawn_robot,
+        camera_bridge,
         delayed_controller_spawners
     ])
