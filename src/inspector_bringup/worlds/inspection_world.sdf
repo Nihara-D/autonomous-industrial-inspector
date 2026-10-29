@@ -11,6 +11,9 @@
     <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
     <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
     <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
 
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
@@ -56,11 +59,12 @@
 
     <!-- Inspection objects on the table, spaced apart for a perception pipeline to distinguish -->
     <model name="inspection_object_red">
-      <pose>0.4 0.12 0.45 0 0 0</pose>
+      <pose>0.4 0.12 0.4255 0 0 0.2915</pose>
       <link name="link">
         <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
         <collision name="collision">
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.5</mu><mu2>1.5</mu2></ode></friction></surface>
         </collision>
         <visual name="visual">
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
@@ -70,11 +74,12 @@
     </model>
 
     <model name="inspection_object_green">
-      <pose>0.4 0 0.45 0 0 0</pose>
+      <pose>0.4 0 0.4255 0 0 0</pose>
       <link name="link">
         <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
         <collision name="collision">
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.5</mu><mu2>1.5</mu2></ode></friction></surface>
         </collision>
         <visual name="visual">
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
@@ -84,16 +89,58 @@
     </model>
 
     <model name="inspection_object_blue">
-      <pose>0.4 -0.12 0.45 0 0 0</pose>
+      <pose>0.4 -0.12 0.4255 0 0 -0.2915</pose>
       <link name="link">
         <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia></inertial>
         <collision name="collision">
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.5</mu><mu2>1.5</mu2></ode></friction></surface>
         </collision>
         <visual name="visual">
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
           <material><ambient>0.1 0.2 0.9 1</ambient><diffuse>0.1 0.2 0.9 1</diffuse></material>
         </visual>
+      </link>
+    </model>
+
+    <!-- Output pedestal: slots at x=0, y = 0.55 / 0.47 / 0.39, top at z = 0.4 -->
+    <model name="output_pedestal">
+      <static>true</static>
+      <pose>0 0.46 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.2 0.32 0.4</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.2 0.32 0.4</size></box></geometry>
+          <material>
+            <ambient>0.85 0.85 0.3 1</ambient>
+            <diffuse>0.85 0.85 0.3 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Fixed overhead camera looking straight down (image-up = +X, image-left = +Y) -->
+    <model name="overhead_camera">
+      <static>true</static>
+      <pose>0.4 0 1.2 0 1.5708 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+        </visual>
+        <sensor name="overhead_camera" type="camera">
+          <always_on>true</always_on>
+          <update_rate>15</update_rate>
+          <visualize>false</visualize>
+          <topic>camera/image_raw</topic>
+          <camera>
+            <horizontal_fov>1.047</horizontal_fov>
+            <image><width>640</width><height>480</height><format>R8G8B8</format></image>
+            <clip><near>0.1</near><far>5.0</far></clip>
+          </camera>
+        </sensor>
       </link>
     </model>
 
