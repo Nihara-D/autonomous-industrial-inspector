@@ -76,7 +76,7 @@ Brings up the full simulation plus an overhead camera bridged into ROS 2, with a
 * [x] Inspection environment (table + 3 colored objects in custom Gazebo world)
 * [x] Perception pipeline (overhead camera + OpenCV color-based object detection)
 * [x] Gripper + automated pick-and-place execution (inspector_pick_place)
-* [ ] Dockerization
+* [x] Dockerization (Dockerfile + docker-compose.yml)
 
 ## Author
 
@@ -96,3 +96,18 @@ Overhead-camera detection -> MoveIt collision-free transit -> straight-line gras
 cd src/inspector_pick_place && python3 -m pytest -q test
 cd src/inspector_perception && python3 -m pytest -q test
 ```
+
+## Docker
+
+```bash
+xhost +local:docker
+docker compose up --build        # full autonomous pick-and-place demo
+```
+
+Other launch files inside the container:
+
+```bash
+docker compose run --rm inspector ros2 launch inspector_bringup full_system.launch.py
+```
+
+The first build downloads several GB (ROS 2 Jazzy desktop-full, Gazebo, MoveIt 2).
