@@ -14,9 +14,6 @@
     <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
       <render_engine>ogre2</render_engine>
     </plugin>
-    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-      <render_engine>ogre2</render_engine>
-    </plugin>
 
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
@@ -103,47 +100,6 @@
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
           <material><ambient>0.1 0.2 0.9 1</ambient><diffuse>0.1 0.2 0.9 1</diffuse></material>
         </visual>
-      </link>
-    </model>
-
-    <!-- Output pedestal: slots at x=0, y = 0.55 / 0.47 / 0.39, top at z = 0.4 -->
-    <model name="output_pedestal">
-      <static>true</static>
-      <pose>0 0.46 0.2 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry><box><size>0.2 0.32 0.4</size></box></geometry>
-        </collision>
-        <visual name="visual">
-          <geometry><box><size>0.2 0.32 0.4</size></box></geometry>
-          <material>
-            <ambient>0.85 0.85 0.3 1</ambient>
-            <diffuse>0.85 0.85 0.3 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Fixed overhead camera looking straight down (image-up = +X, image-left = +Y) -->
-    <model name="overhead_camera">
-      <static>true</static>
-      <pose>0.4 0 1.2 0 1.5708 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
-          <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
-        </visual>
-        <sensor name="overhead_camera" type="camera">
-          <always_on>true</always_on>
-          <update_rate>15</update_rate>
-          <visualize>false</visualize>
-          <topic>camera/image_raw</topic>
-          <camera>
-            <horizontal_fov>1.047</horizontal_fov>
-            <image><width>640</width><height>480</height><format>R8G8B8</format></image>
-            <clip><near>0.1</near><far>5.0</far></clip>
-          </camera>
-        </sensor>
       </link>
     </model>
 
