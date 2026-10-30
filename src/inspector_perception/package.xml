@@ -6,18 +6,13 @@
   <description>Overhead-camera colour object detection for Industrial Inspector</description>
   <maintainer email="nihara@example.com">Nihara Randini</maintainer>
   <license>Apache-2.0</license>
-
   <buildtool_depend>ament_python</buildtool_depend>
-
   <exec_depend>rclpy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-opencv</exec_depend>
-  <exec_depend>inspector_bringup</exec_depend>
-
   <test_depend>python3-pytest</test_depend>
-
   <export>
     <build_type>ament_python</build_type>
   </export>

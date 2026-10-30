@@ -84,7 +84,7 @@
     </inertial>
   </link>
 
-  <!-- Joint 3 -->
+  <!-- Joint 3 (elbow, range widened so the arm can reach the table top) -->
   <joint name="joint_3" type="revolute">
     <parent link="upper_arm_link"/>
     <child link="forearm_link"/>
@@ -135,7 +135,6 @@
       <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
     </inertial>
   </link>
-
 
   <!-- ===================== Parallel-jaw gripper ===================== -->
   <joint name="gripper_palm_joint" type="fixed">

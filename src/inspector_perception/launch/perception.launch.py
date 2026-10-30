@@ -19,6 +19,7 @@ def generate_launch_description():
         executable='color_detector',
         name='color_detector',
         output='screen',
+        parameters=[{'use_sim_time': True}],
     )
 
     return LaunchDescription([simulation, TimerAction(period=5.0, actions=[detector])])
