@@ -111,3 +111,18 @@ docker compose run --rm inspector ros2 launch inspector_bringup full_system.laun
 ```
 
 The first build downloads several GB (ROS 2 Jazzy desktop-full, Gazebo, MoveIt 2).
+
+## Docker
+
+```bash
+xhost +local:docker
+docker compose up --build        # full autonomous pick-and-place demo
+```
+
+Other launch files inside the container:
+
+```bash
+docker compose run --rm inspector ros2 launch inspector_bringup full_system.launch.py
+```
+
+The first build downloads several GB (ROS 2 Jazzy desktop-full, Gazebo, MoveIt 2).
