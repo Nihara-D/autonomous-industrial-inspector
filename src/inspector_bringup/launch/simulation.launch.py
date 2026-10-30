@@ -12,9 +12,7 @@ def generate_launch_description():
     pkg_bringup = get_package_share_directory('inspector_bringup')
     pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
 
-    # 1. Process Xacro, injecting the REAL, resolved path to controllers.yaml
-    #    (xacro has no $(find ...) substitution -- it must be passed in as a
-    #    mapping from Python instead).
+    # 1. Process Xacro, injecting the real path to controllers.yaml
     xacro_file = os.path.join(pkg_description, 'urdf', 'inspector_arm.urdf.xacro')
     controllers_yaml = os.path.join(pkg_bringup, 'config', 'controllers.yaml')
     robot_desc = xacro.process_file(
@@ -22,16 +20,15 @@ def generate_launch_description():
         mappings={'controllers_config': controllers_yaml}
     ).toxml()
 
-    # 2. Start Robot State Publisher
+    # 2. Robot State Publisher
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
-        parameters=[{'robot_description': robot_desc}]
+        parameters=[{'robot_description': robot_desc, 'use_sim_time': True}]
     )
 
-    # 3. Launch Gazebo Harmonic (gz_sim) with the custom inspection world
-    #    (table + 3 colored objects, replacing the old empty.sdf).
+    # 3. Gazebo Harmonic with the inspection world
     world_path = os.path.join(pkg_bringup, 'worlds', 'inspection_world.sdf')
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -40,7 +37,7 @@ def generate_launch_description():
         launch_arguments={'gz_args': ['-r ', world_path]}.items(),
     )
 
-    # 4. Spawn Robot in Gazebo using ros_gz_sim bridge
+    # 4. Spawn robot
     spawn_robot = Node(
         package='ros_gz_sim',
         executable='create',
@@ -52,8 +49,7 @@ def generate_launch_description():
         output='screen'
     )
 
-    # 5. Spawn ros2_control controllers once the robot exists in Gazebo and
-    #    the gz_ros2_control plugin has started the controller_manager.
+    # 5. Controllers
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
@@ -75,19 +71,18 @@ def generate_launch_description():
         output='screen'
     )
 
-    # Bridge the overhead camera (Gazebo transport -> ROS 2)
+    # Bridge simulation clock + overhead camera (Gazebo transport -> ROS 2)
     camera_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
             '/camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
         ],
         output='screen'
     )
 
-    # Spawn controllers only after spawn_robot has finished, so the
-    # controller_manager (started by the gz_ros2_control plugin) is up first.
     delayed_controller_spawners = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=spawn_robot,

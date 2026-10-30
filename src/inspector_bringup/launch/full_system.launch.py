@@ -24,14 +24,14 @@ def generate_launch_description():
     pkg_bringup = get_package_share_directory('inspector_bringup')
     pkg_description = get_package_share_directory('inspector_description')
 
-    # 1. Bring up Gazebo Harmonic + robot spawn + ros2_control controllers
+    # 1. Gazebo Harmonic + robot spawn + ros2_control controllers
     simulation = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_bringup, 'launch', 'simulation.launch.py')
         )
     )
 
-    # 2. Build the MoveIt config
+    # 2. MoveIt config
     urdf_path = os.path.join(pkg_description, 'urdf', 'inspector_arm.urdf.xacro')
     moveit_config = (
         MoveItConfigsBuilder("inspector_arm", package_name="inspector_moveit_config")
@@ -44,9 +44,6 @@ def generate_launch_description():
         .to_moveit_configs()
     )
 
-    # Load the OMPL pipeline yaml directly and force it into the "ompl"
-    # parameter namespace move_group actually looks under -- sidesteps a
-    # version-specific quirk in MoveItConfigsBuilder's own pipeline loader.
     ompl_planning_yaml = load_yaml(
         "inspector_moveit_config", "config/ompl_planning.yaml"
     )
@@ -57,6 +54,7 @@ def generate_launch_description():
         output="screen",
         parameters=[
             moveit_config.to_dict(),
+            {"use_sim_time": True},
             {
                 "planning_pipelines": ["ompl"],
                 "default_planning_pipeline": "ompl",
@@ -72,6 +70,7 @@ def generate_launch_description():
         output="screen",
         condition=IfCondition(LaunchConfiguration("rviz")),
         parameters=[
+            {"use_sim_time": True},
             moveit_config.robot_description,
             moveit_config.robot_description_semantic,
             moveit_config.robot_description_kinematics,
