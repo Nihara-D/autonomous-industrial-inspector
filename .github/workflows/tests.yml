@@ -1,0 +1,17 @@
+name: unit-tests
+on: [push, pull_request]
+jobs:
+  python-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install numpy opencv-python-headless pytest xacro
+      - name: Kinematics and task geometry
+        run: cd src/inspector_pick_place && python -m pytest -q test
+      - name: Perception core
+        run: cd src/inspector_perception && python -m pytest -q test
+      - name: URDF expands
+        run: python -c "import xacro; xacro.process_file('src/inspector_description/urdf/inspector_arm.urdf.xacro', mappings={'controllers_config':'/tmp/c.yaml'})"
