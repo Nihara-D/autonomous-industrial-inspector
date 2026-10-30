@@ -75,9 +75,24 @@ Brings up the full simulation plus an overhead camera bridged into ROS 2, with a
 * [x] MoveIt 2 motion planning (OMPL) -plan and execute via RViz
 * [x] Inspection environment (table + 3 colored objects in custom Gazebo world)
 * [x] Perception pipeline (overhead camera + OpenCV color-based object detection)
-* [ ] Automated pick-and-place execution
+* [x] Gripper + automated pick-and-place execution (inspector_pick_place)
 * [ ] Dockerization
 
 ## Author
 
 Nihara Randini - shniharard@gmail.com
+
+## Autonomous pick-and-place
+
+```bash
+ros2 launch inspector_bringup pick_and_place.launch.py
+ros2 launch inspector_bringup pick_and_place.launch.py pick_order:=blue,red rviz:=false
+```
+
+Overhead-camera detection -> MoveIt collision-free transit -> straight-line grasp/lift/place
+-> cubes sorted onto the output pedestal. Unit tests:
+
+```bash
+cd src/inspector_pick_place && python3 -m pytest -q test
+cd src/inspector_perception && python3 -m pytest -q test
+```
