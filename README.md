@@ -111,6 +111,31 @@ docker compose run --rm inspector ros2 launch inspector_bringup full_system.laun
 
 The first build downloads several GB (ROS 2 Jazzy desktop-full, Gazebo, MoveIt 2).
 
+## Operator app (Angular + .NET)
+
+A small web panel for the person running the cell: live camera view with detected objects,
+choose which cubes to sort and in what order, start or stop a run, and see earlier runs.
+
+Install once:
+
+```bash
+sudo apt install -y ros-jazzy-rosbridge-suite dotnet-sdk-8.0 nodejs npm
+```
+
+Run (two terminals):
+
+```bash
+# 1. robot side: simulation, MoveIt, camera, rosbridge, task manager
+ros2 launch inspector_bringup inspector_app.launch.py
+
+# 2. web side: builds the UI and serves everything on http://localhost:5000
+./app/run.sh
+```
+
+For UI work, run the backend with `dotnet run` in `app/backend/InspectorApi` and the UI with
+`npm start` in `app/frontend/inspector-ui` (http://localhost:4200, `/api` is proxied to the backend).
+The Angular build needs Node 18.19 or newer.
+
 ## Author
 
 Nihara Randini - shniharard@gmail.com
