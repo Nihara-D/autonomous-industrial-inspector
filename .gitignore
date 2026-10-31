@@ -6,3 +6,13 @@ log/
 .vscode/
 .idea/
 *.swp
+
+# operator app
+app/backend/InspectorApi/bin/
+app/backend/InspectorApi/obj/
+app/backend/InspectorApi/data/
+app/backend/InspectorApi/wwwroot/*
+!app/backend/InspectorApi/wwwroot/.gitkeep
+app/frontend/inspector-ui/node_modules/
+app/frontend/inspector-ui/dist/
+app/frontend/inspector-ui/.angular/

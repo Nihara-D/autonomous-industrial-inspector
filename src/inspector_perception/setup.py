@@ -21,6 +21,7 @@ setup(
     entry_points={
         "console_scripts": [
             "color_detector = inspector_perception.color_detector_node:main",
+            "camera_jpeg = inspector_perception.camera_jpeg:main",
         ],
     },
 )

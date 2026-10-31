@@ -20,6 +20,7 @@ setup(
     entry_points={
         "console_scripts": [
             "pick_place_node = inspector_pick_place.pick_place_node:main",
+            "task_manager = inspector_pick_place.task_manager:main",
         ],
     },
 )

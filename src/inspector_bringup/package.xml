@@ -23,6 +23,7 @@
   <exec_depend>moveit_configs_utils</exec_depend>
   <exec_depend>inspector_perception</exec_depend>
   <exec_depend>inspector_pick_place</exec_depend>
+  <exec_depend>rosbridge_server</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
