@@ -1,0 +1,117 @@
+<header class="bar">
+  <h1>Inspector</h1>
+  <span class="cell-name">Inspection cell 1</span>
+  <span class="link" [class.ok]="online" [class.bad]="!online">
+    <span class="dot"></span>{{ connectionText }}
+  </span>
+</header>
+
+@if (serverDown) {
+  <div class="banner">The application server is not answering. Check that the backend is running.</div>
+}
+
+<main class="layout">
+  <section class="panel">
+    <h2>Camera</h2>
+    <div class="frame">
+      <img [src]="cameraSrc" [class.hidden]="!cameraOk" (load)="onFrameLoad()" (error)="onFrameError()"
+           alt="Overhead camera view with detected objects">
+      @if (!cameraOk) {
+        <p class="empty">No camera image</p>
+      }
+    </div>
+
+    <h2>Objects on the table</h2>
+    <table>
+      <thead>
+        <tr><th>Colour</th><th class="num">X (m)</th><th class="num">Y (m)</th></tr>
+      </thead>
+      <tbody>
+        @for (o of objects; track $index) {
+          <tr>
+            <td><span class="swatch" [class]="o.color"></span>{{ o.color }}</td>
+            <td class="num">{{ o.x.toFixed(3) }}</td>
+            <td class="num">{{ o.y.toFixed(3) }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="3" class="muted">Nothing detected</td></tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>Sorting order</h2>
+    <table class="order">
+      <thead>
+        <tr><th></th><th>Object</th><th>Goes to</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (row of rows; track row.name; let i = $index) {
+          <tr [class.off]="!row.selected">
+            <td><input type="checkbox" [checked]="row.selected" (change)="toggle(row)" [id]="'c-' + row.name"></td>
+            <td><label [for]="'c-' + row.name"><span class="swatch" [class]="row.name"></span>{{ row.name }}</label></td>
+            <td class="muted">{{ row.selected ? slotFor(row.name) : '-' }}</td>
+            <td class="num">
+              <button class="small" (click)="move(i, -1)" [disabled]="i === 0">Up</button>
+              <button class="small" (click)="move(i, 1)" [disabled]="i === rows.length - 1">Down</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="buttons">
+      <button class="primary" (click)="start()" [disabled]="!canStart">Start sorting</button>
+      <button (click)="stop()" [disabled]="!canStop">Stop after this object</button>
+      <button (click)="resetSlots()" [disabled]="!canReset">Pedestal has been emptied</button>
+    </div>
+    @if (message) {
+      <p class="note" [class.error]="messageIsError">{{ message }}</p>
+    }
+
+    <h2>Cell status</h2>
+    <dl class="facts">
+      <dt>State</dt>
+      <dd [class]="'state-' + (status?.state ?? 'offline')">{{ stateLabel }}</dd>
+      <dt>Working on</dt>
+      <dd>{{ status?.current ?? '-' }}</dd>
+      <dt>Current step</dt>
+      <dd>{{ status?.step || '-' }}</dd>
+      <dt>Pedestal</dt>
+      <dd>{{ status?.next_slot ?? 0 }} of {{ status?.slots_total ?? 3 }} slots used</dd>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2>Activity</h2>
+    <div class="logbox">
+      @for (line of logLines; track $index) {
+        <div [class]="line.level"><span class="time">{{ line.t }}</span>{{ line.msg }}</div>
+      } @empty {
+        <div class="muted">No messages yet</div>
+      }
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Previous runs</h2>
+    <table>
+      <thead>
+        <tr><th>Started</th><th>Time</th><th>Sorted</th><th>Problems</th></tr>
+      </thead>
+      <tbody>
+        @for (run of runs; track run.id) {
+          <tr>
+            <td>{{ run.startedAt | date: 'dd MMM, HH:mm' }}</td>
+            <td class="num">{{ duration(run) }}</td>
+            <td>{{ run.sorted.join(', ') || '-' }}</td>
+            <td>{{ run.failed.concat(run.skipped).join(', ') || '-' }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="muted">No runs recorded yet</td></tr>
+        }
+      </tbody>
+    </table>
+  </section>
+</main>
