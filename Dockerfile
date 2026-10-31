@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ros-jazzy-moveit \
         ros-jazzy-moveit-configs-utils \
         ros-jazzy-xacro \
+        ros-jazzy-rosbridge-suite \
         ros-jazzy-joint-state-publisher \
         ros-jazzy-joint-state-publisher-gui \
         python3-colcon-common-extensions \
