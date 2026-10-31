@@ -13,7 +13,10 @@ An industrial inspection and pick-and-place robotic system built using **ROS 2 J
 * **Motion Planning:** MoveIt 2 (OMPL) collision-free path planning and execution
 * **Inspection Environment:** Custom Gazebo world with an inspection table and three colored objects, positioned within the arm's reach
 * **Perception:** OpenCV-based color object detection over a fixed overhead camera feed
-* **Architecture:** Modular ROS 2 packages (`inspector_description`, `inspector_bringup`, `inspector_moveit_config`, `inspector_perception`)
+* **Manipulation:** Parallel-jaw gripper driven by its own `gripper_controller`
+* **Pick-and-place:** Camera detection -> MoveIt collision-free transit -> straight-line grasp/lift/place -> cubes sorted onto an output pedestal
+* **Architecture:** Modular ROS 2 packages (`inspector_description`, `inspector_bringup`, `inspector_moveit_config`, `inspector_perception`, `inspector_pick_place`)
+* **Deployment:** Dockerfile + docker-compose (ROS 2 Jazzy, Gazebo Harmonic, MoveIt 2)
 
 ## Screenshots
 
@@ -78,10 +81,6 @@ Brings up the full simulation plus an overhead camera bridged into ROS 2, with a
 * [x] Gripper + automated pick-and-place execution (inspector_pick_place)
 * [x] Dockerization (Dockerfile + docker-compose.yml)
 
-## Author
-
-Nihara Randini - shniharard@gmail.com
-
 ## Autonomous pick-and-place
 
 ```bash
@@ -112,17 +111,6 @@ docker compose run --rm inspector ros2 launch inspector_bringup full_system.laun
 
 The first build downloads several GB (ROS 2 Jazzy desktop-full, Gazebo, MoveIt 2).
 
-## Docker
+## Author
 
-```bash
-xhost +local:docker
-docker compose up --build        # full autonomous pick-and-place demo
-```
-
-Other launch files inside the container:
-
-```bash
-docker compose run --rm inspector ros2 launch inspector_bringup full_system.launch.py
-```
-
-The first build downloads several GB (ROS 2 Jazzy desktop-full, Gazebo, MoveIt 2).
+Nihara Randini - shniharard@gmail.com
