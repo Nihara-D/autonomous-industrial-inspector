@@ -32,6 +32,9 @@ An industrial inspection and pick-and-place robotic system built using **ROS 2 J
 ![RViz motion planning](rviz_planning.png)
 *MoveIt 2 Motion Planning panel in RViz -planning a collision-free trajectory before execution.*
 
+![Operator panel](web_app.png)
+*Operator web panel (Angular + .NET) at localhost:5000 - camera view, sorting order, cell status and run history. Shown before the robot side was started.*
+
 ## System Requirements
 
 * **OS:** Ubuntu 24.04 LTS (Noble Numbat)
